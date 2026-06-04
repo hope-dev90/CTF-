@@ -5,6 +5,7 @@ import { XssModule } from './xss/xss.module';
 import { SqlModule } from './sql/sql.module';
 import { LearnModule } from './learn/learn.module';
 import { PicoctfModule } from './picoctf/picoctf.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PicoctfModule } from './picoctf/picoctf.module';
     SqlModule,
     LearnModule,
     PicoctfModule,
+    ChatModule,
   ],
 })
 export class AppModule {}
