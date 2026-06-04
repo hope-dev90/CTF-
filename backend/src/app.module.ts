@@ -13,15 +13,11 @@ import { ChatModule } from './chat/chat.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        username: config.get<string>('DB_USER'),
-        password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_NAME'),
+        type: 'sqlite',
+        database: 'db.sqlite',
         autoLoadEntities: true,
         synchronize: true,
-      }),
+      }) as any,
     }),
     XssModule,
     SqlModule,
