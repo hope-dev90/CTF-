@@ -6,6 +6,7 @@ import { SqlModule } from './sql/sql.module';
 import { LearnModule } from './learn/learn.module';
 import { PicoctfModule } from './picoctf/picoctf.module';
 import { ChatModule } from './chat/chat.module';
+import { AppController } from './app.controller';
 
 const isTrue = (value?: string) => value === 'true' || value === '1';
 
@@ -43,5 +44,6 @@ const isTrue = (value?: string) => value === 'true' || value === '1';
     PicoctfModule,
     ChatModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
