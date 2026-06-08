@@ -1,10 +1,14 @@
 export const sendMessageToAI = async (message) => {
-  const response = await fetch("http://localhost:3000/api/chat",{
+  const baseUrl =
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ||
+    'https://ctf-zujn.onrender.com';
+
+  const response = await fetch(`${baseUrl}/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ userId: 'guest', message }),
   });
   const data = await response.json();
   if (!response.ok) {
