@@ -2,15 +2,29 @@ const BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ||
   'https://ctf-zujn.onrender.com';
 
+function getToken() {
+  return localStorage.getItem('ctf_token') || null;
+}
+
 async function request(path, options = {}) {
+  const token = getToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     ...options,
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || 'Request failed');
   return json.data;
 }
+
+// ── Auth ──────────────────────────────────────────
+export const authApi = {
+  register: (body) => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
+  login: (body) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+};
 
 // ── XSS ──────────────────────────────────────────
 export const xssApi = {

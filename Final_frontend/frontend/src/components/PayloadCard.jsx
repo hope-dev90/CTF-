@@ -41,9 +41,11 @@ export default function PayloadCard({ item, onEdit, onDelete }) {
             {title}
           </h3>
         </div>
-        <button className="hover:text-primary transition-colors" style={{ color: '#bbcbb8' }} onClick={() => onDelete(item.id)}>
-          <span className="material-symbols-outlined">delete</span>
-        </button>
+        {onDelete && (
+          <button className="hover:text-primary transition-colors" style={{ color: '#bbcbb8' }} onClick={() => onDelete(item.id)}>
+            <span className="material-symbols-outlined">delete</span>
+          </button>
+        )}
       </div>
 
       {/* Description */}
@@ -77,13 +79,15 @@ export default function PayloadCard({ item, onEdit, onDelete }) {
         <span className="text-xs font-mono" style={{ color: '#bbcbb8' }}>
           {new Date(item.createdAt).toLocaleDateString()}
         </span>
-        <button
-          onClick={() => onEdit(item)}
-          className="text-xs font-mono hover:underline"
-          style={{ color: '#31e368' }}
-        >
-          Edit
-        </button>
+        {onEdit && (
+          <button
+            onClick={() => onEdit(item)}
+            className="text-xs font-mono hover:underline"
+            style={{ color: '#31e368' }}
+          >
+            Edit
+          </button>
+        )}
       </div>
     </div>
   );

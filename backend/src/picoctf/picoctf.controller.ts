@@ -8,11 +8,14 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { PicoctfService } from './picoctf.service';
 import { CreatePicoctfDto } from './dto/create-picoctf.dto';
 import { UpdatePicoctfDto } from './dto/update-picoctf.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
 @ApiTags('picoctf')
 @Controller('picoctf')
@@ -20,14 +23,17 @@ export class PicoctfController {
   constructor(private readonly picoctfService: PicoctfService) {}
 
   @Post()
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new PicoCTF entry' })
+  @ApiOperation({ summary: 'Create a new PicoCTF entry (admin only)' })
   @ApiResponse({ status: 201, description: 'PicoCTF entry created successfully' })
   async create(@Body() dto: CreatePicoctfDto) {
     const data = await this.picoctfService.create(dto);
     return { success: true, data, message: 'PicoCTF entry created' };
   }
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all PicoCTF entries' })
   @ApiResponse({ status: 200, description: 'PicoCTF entries retrieved' })
@@ -36,6 +42,7 @@ export class PicoctfController {
     return { success: true, data, message: 'PicoCTF entries retrieved' };
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get a single PicoCTF entry' })
   @ApiResponse({ status: 200, description: 'PicoCTF entry retrieved' })
@@ -45,7 +52,9 @@ export class PicoctfController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a PicoCTF entry' })
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a PicoCTF entry (admin only)' })
   @ApiResponse({ status: 200, description: 'PicoCTF entry updated' })
   async update(@Param('id') id: string, @Body() dto: UpdatePicoctfDto) {
     const data = await this.picoctfService.update(id, dto);
@@ -53,7 +62,9 @@ export class PicoctfController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a PicoCTF entry' })
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a PicoCTF entry (admin only)' })
   @ApiResponse({ status: 200, description: 'PicoCTF entry deleted' })
   async remove(@Param('id') id: string) {
     await this.picoctfService.remove(id);

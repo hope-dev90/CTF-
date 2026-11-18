@@ -8,11 +8,14 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { XssService } from './xss.service';
 import { CreateXssDto } from './dto/create-xss.dto';
 import { UpdateXssDto } from './dto/update-xss.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
 @ApiTags('xss')
 @Controller('xss')
@@ -20,14 +23,17 @@ export class XssController {
   constructor(private readonly xssService: XssService) {}
 
   @Post()
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new XSS entry' })
+  @ApiOperation({ summary: 'Create a new XSS entry (admin only)' })
   @ApiResponse({ status: 201, description: 'XSS entry created successfully' })
   async create(@Body() dto: CreateXssDto) {
     const data = await this.xssService.create(dto);
     return { success: true, data, message: 'XSS entry created' };
   }
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all XSS entries' })
   @ApiResponse({ status: 200, description: 'XSS entries retrieved' })
@@ -36,6 +42,7 @@ export class XssController {
     return { success: true, data, message: 'XSS entries retrieved' };
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get a single XSS entry' })
   @ApiResponse({ status: 200, description: 'XSS entry retrieved' })
@@ -45,7 +52,9 @@ export class XssController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a XSS entry' })
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a XSS entry (admin only)' })
   @ApiResponse({ status: 200, description: 'XSS entry updated' })
   async update(@Param('id') id: string, @Body() dto: UpdateXssDto) {
     const data = await this.xssService.update(id, dto);
@@ -53,7 +62,9 @@ export class XssController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a XSS entry' })
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a XSS entry (admin only)' })
   @ApiResponse({ status: 200, description: 'XSS entry deleted' })
   async remove(@Param('id') id: string) {
     await this.xssService.remove(id);

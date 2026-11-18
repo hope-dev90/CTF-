@@ -12,7 +12,7 @@ const difficultyColor = (d) => {
   return '#d7baff';
 };
 
-function ChallengeCard({ item, onEdit, onDelete }) {
+function ChallengeCard({ item, onEdit, onDelete, isAdmin }) {
   const [copied, setCopied] = useState(false);
   const copyFlag = () => {
     if (!item.flag) return;
@@ -41,9 +41,11 @@ function ChallengeCard({ item, onEdit, onDelete }) {
             {item.challengeName}
           </h3>
         </div>
-        <button onClick={() => onDelete(item.id)} style={{ color: '#bbcbb8' }}>
-          <span className="material-symbols-outlined">delete</span>
-        </button>
+        {isAdmin && (
+          <button onClick={() => onDelete(item.id)} style={{ color: '#bbcbb8' }}>
+            <span className="material-symbols-outlined">delete</span>
+          </button>
+        )}
       </div>
 
       <div className="relative">
@@ -67,13 +69,15 @@ function ChallengeCard({ item, onEdit, onDelete }) {
         <span className="text-xs font-mono" style={{ color: '#bbcbb8' }}>
           {new Date(item.createdAt).toLocaleDateString()}
         </span>
-        <button onClick={() => onEdit(item)} className="text-xs font-mono hover:underline" style={{ color: '#d7baff' }}>Edit</button>
+        {isAdmin && (
+          <button onClick={() => onEdit(item)} className="text-xs font-mono hover:underline" style={{ color: '#d7baff' }}>Edit</button>
+        )}
       </div>
     </div>
   );
 }
 
-export default function PicoctfPage({ search }) {
+export default function PicoctfPage({ search, isAdmin }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -132,10 +136,12 @@ export default function PicoctfPage({ search }) {
               CTF Challenge Writeups
             </h2>
           </div>
-          <button onClick={openCreate} className="px-6 py-2 rounded-lg font-bold flex items-center gap-2"
-            style={{ background: '#d7baff', color: '#290055' }}>
-            <span className="material-symbols-outlined">add</span>New Writeup
-          </button>
+          {isAdmin && (
+            <button onClick={openCreate} className="px-6 py-2 rounded-lg font-bold flex items-center gap-2"
+              style={{ background: '#d7baff', color: '#290055' }}>
+              <span className="material-symbols-outlined">add</span>New Writeup
+            </button>
+          )}
         </div>
       </header>
 
@@ -149,18 +155,18 @@ export default function PicoctfPage({ search }) {
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
           {filtered.map(item => (
-            <ChallengeCard key={item.id} item={item} onEdit={openEdit} onDelete={handleDelete} />
+            <ChallengeCard key={item.id} item={item} onEdit={openEdit} onDelete={handleDelete} isAdmin={isAdmin} />
           ))}
           {filtered.length === 0 && (
             <div className="col-span-3 flex flex-col items-center justify-center h-48 gap-3">
               <span className="material-symbols-outlined text-5xl" style={{ color: '#3c4a3c' }}>emoji_events</span>
-              <p className="font-mono text-sm" style={{ color: '#bbcbb8' }}>No writeups yet. Add one!</p>
+              <p className="font-mono text-sm" style={{ color: '#bbcbb8' }}>No writeups yet.</p>
             </div>
           )}
         </div>
       )}
 
-      {showModal && (
+      {showModal && isAdmin && (
         <Modal title={editing ? 'Edit Writeup' : 'New CTF Writeup'} onClose={() => setShowModal(false)}>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {[

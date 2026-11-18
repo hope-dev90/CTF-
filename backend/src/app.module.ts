@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
 import { XssModule } from './xss/xss.module';
 import { SqlModule } from './sql/sql.module';
 import { LearnModule } from './learn/learn.module';
 import { PicoctfModule } from './picoctf/picoctf.module';
 import { ChatModule } from './chat/chat.module';
+import { AuthModule } from './auth/auth.module';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AppController } from './app.controller';
 
 const isTrue = (value?: string) => value === 'true' || value === '1';
@@ -38,6 +41,7 @@ const isTrue = (value?: string) => value === 'true' || value === '1';
         };
       },
     }),
+    AuthModule,
     XssModule,
     SqlModule,
     LearnModule,
@@ -45,5 +49,11 @@ const isTrue = (value?: string) => value === 'true' || value === '1';
     ChatModule,
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

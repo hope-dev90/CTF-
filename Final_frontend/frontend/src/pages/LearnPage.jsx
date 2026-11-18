@@ -5,7 +5,7 @@ import Modal from '../components/Modal';
 
 const EMPTY = { title: '', content: '', category: '', tags: '' };
 
-export default function LearnPage({ search }) {
+export default function LearnPage({ search, isAdmin }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -65,10 +65,12 @@ export default function LearnPage({ search }) {
               Cybersecurity Knowledge Base
             </h2>
           </div>
-          <button onClick={openCreate} className="px-6 py-2 rounded-lg font-bold flex items-center gap-2"
-            style={{ background: '#d7baff', color: '#290055' }}>
-            <span className="material-symbols-outlined">add</span>New Note
-          </button>
+          {isAdmin && (
+            <button onClick={openCreate} className="px-6 py-2 rounded-lg font-bold flex items-center gap-2"
+              style={{ background: '#d7baff', color: '#290055' }}>
+              <span className="material-symbols-outlined">add</span>New Note
+            </button>
+          )}
         </div>
       </header>
 
@@ -82,18 +84,23 @@ export default function LearnPage({ search }) {
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
           {filtered.map(item => (
-            <PayloadCard key={item.id} item={item} onEdit={openEdit} onDelete={handleDelete} />
+            <PayloadCard
+              key={item.id}
+              item={item}
+              onEdit={isAdmin ? openEdit : null}
+              onDelete={isAdmin ? handleDelete : null}
+            />
           ))}
           {filtered.length === 0 && (
             <div className="col-span-3 flex flex-col items-center justify-center h-48 gap-3">
               <span className="material-symbols-outlined text-5xl" style={{ color: '#3c4a3c' }}>menu_book</span>
-              <p className="font-mono text-sm" style={{ color: '#bbcbb8' }}>No learning notes yet. Add one!</p>
+              <p className="font-mono text-sm" style={{ color: '#bbcbb8' }}>No learning notes yet.</p>
             </div>
           )}
         </div>
       )}
 
-      {showModal && (
+      {showModal && isAdmin && (
         <Modal title={editing ? 'Edit Note' : 'New Learning Note'} onClose={() => setShowModal(false)}>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>

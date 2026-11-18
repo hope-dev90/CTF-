@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { label: 'Dashboard', icon: 'dashboard', page: 'dashboard' },
@@ -10,6 +11,8 @@ const navItems = [
 ];
 
 export default function Sidebar({ activePage, onNavigate }) {
+  const { user, isAdmin, logout } = useAuth();
+
   return (
     <nav className="fixed left-0 top-0 h-full w-72 z-40 flex flex-col p-4 pt-20"
       style={{ background: '#201f1f', borderRight: '1px solid #3c4a3c' }}>
@@ -18,11 +21,18 @@ export default function Sidebar({ activePage, onNavigate }) {
       <div className="mb-8 px-2">
         <div className="flex items-center gap-3 p-3 rounded-xl border"
           style={{ background: '#2a2a2a', borderColor: '#3c4a3c' }}>
-          <div className="flex-1">
-            <p className="font-bold text-sm" style={{ color: '#e5e2e1' }}>Root_User</p>
-            <p className="text-xs font-mono" style={{ color: '#bbcbb8' }}>Level 4 Operator</p>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm truncate" style={{ color: '#e5e2e1' }}>
+              {user?.username || 'User'}
+            </p>
+            <p className="text-xs font-mono" style={{ color: isAdmin ? '#31e368' : '#bbcbb8' }}>
+              {isAdmin ? '★ Admin' : 'Viewer'}
+            </p>
           </div>
-          <span className="material-symbols-outlined" style={{ color: '#31e368', fontVariationSettings: "'FILL' 1" }}>security</span>
+          <span className="material-symbols-outlined flex-shrink-0"
+            style={{ color: '#31e368', fontVariationSettings: "'FILL' 1" }}>
+            security
+          </span>
         </div>
       </div>
 
@@ -44,7 +54,8 @@ export default function Sidebar({ activePage, onNavigate }) {
                 transform: active ? 'translateX(4px)' : 'none',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 20, fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>
+              <span className="material-symbols-outlined"
+                style={{ fontSize: 20, fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>
                 {item.icon}
               </span>
               {item.label}
@@ -53,9 +64,9 @@ export default function Sidebar({ activePage, onNavigate }) {
         })}
       </div>
 
-      {/* Server load */}
+      {/* Footer — server load + logout */}
       <div className="mt-auto border-t pt-4 px-2" style={{ borderColor: '#3c4a3c' }}>
-        <div className="p-4 rounded-xl border" style={{ background: '#0e0e0e', borderColor: 'rgba(60,74,60,0.3)' }}>
+        <div className="p-4 rounded-xl border mb-3" style={{ background: '#0e0e0e', borderColor: 'rgba(60,74,60,0.3)' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-mono uppercase tracking-widest" style={{ color: '#bbcbb8' }}>Server Load</span>
             <span className="text-xs font-mono" style={{ color: '#31e368' }}>12%</span>
@@ -64,6 +75,15 @@ export default function Sidebar({ activePage, onNavigate }) {
             <div className="h-full rounded-full" style={{ width: '12%', background: '#31e368' }} />
           </div>
         </div>
+
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-2 p-3 rounded-lg text-sm font-mono transition-all hover:opacity-80"
+          style={{ background: '#1c1b1b', color: '#ffb4ab', border: '1px solid rgba(255,180,171,0.2)' }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>
+          Sign out
+        </button>
       </div>
     </nav>
   );

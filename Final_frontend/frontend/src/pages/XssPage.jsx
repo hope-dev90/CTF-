@@ -5,7 +5,7 @@ import Modal from '../components/Modal';
 
 const EMPTY = { title: '', payload: '', technique: '', notes: '' };
 
-export default function XssPage({ search }) {
+export default function XssPage({ search, isAdmin }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,7 +28,11 @@ export default function XssPage({ search }) {
   useEffect(() => { load(); }, []);
 
   const openCreate = () => { setEditing(null); setForm(EMPTY); setShowModal(true); };
-  const openEdit = (item) => { setEditing(item); setForm({ title: item.title, payload: item.payload, technique: item.technique || '', notes: item.notes || '' }); setShowModal(true); };
+  const openEdit = (item) => {
+    setEditing(item);
+    setForm({ title: item.title, payload: item.payload, technique: item.technique || '', notes: item.notes || '' });
+    setShowModal(true);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,15 +75,17 @@ export default function XssPage({ search }) {
               XSS Exploit Database
             </h2>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={openCreate}
-              className="px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all active:scale-95"
-              style={{ background: '#31e368', color: '#00702c' }}>
-              <span className="material-symbols-outlined">add</span>
-              New Payload
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="flex gap-3">
+              <button
+                onClick={openCreate}
+                className="px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all active:scale-95"
+                style={{ background: '#31e368', color: '#00702c' }}>
+                <span className="material-symbols-outlined">add</span>
+                New Payload
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -101,12 +107,17 @@ export default function XssPage({ search }) {
           {/* Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
             {filtered.map(item => (
-              <PayloadCard key={item.id} item={item} onEdit={openEdit} onDelete={handleDelete} />
+              <PayloadCard
+                key={item.id}
+                item={item}
+                onEdit={isAdmin ? openEdit : null}
+                onDelete={isAdmin ? handleDelete : null}
+              />
             ))}
             {filtered.length === 0 && (
               <div className="col-span-3 flex flex-col items-center justify-center h-48 gap-3">
                 <span className="material-symbols-outlined text-5xl" style={{ color: '#3c4a3c' }}>bug_report</span>
-                <p className="font-mono text-sm" style={{ color: '#bbcbb8' }}>No XSS payloads yet. Add one!</p>
+                <p className="font-mono text-sm" style={{ color: '#bbcbb8' }}>No XSS payloads yet.</p>
               </div>
             )}
           </div>
@@ -146,8 +157,8 @@ export default function XssPage({ search }) {
         </>
       )}
 
-      {/* Modal */}
-      {showModal && (
+      {/* Modal (admin only) */}
+      {showModal && isAdmin && (
         <Modal title={editing ? 'Edit XSS Payload' : 'New XSS Payload'} onClose={() => setShowModal(false)}>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {[

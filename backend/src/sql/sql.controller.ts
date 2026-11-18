@@ -8,11 +8,14 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { SqlService } from './sql.service';
 import { CreateSqlDto } from './dto/create-sql.dto';
 import { UpdateSqlDto } from './dto/update-sql.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
 @ApiTags('sql')
 @Controller('sql')
@@ -20,14 +23,17 @@ export class SqlController {
   constructor(private readonly sqlService: SqlService) {}
 
   @Post()
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new SQL entry' })
+  @ApiOperation({ summary: 'Create a new SQL entry (admin only)' })
   @ApiResponse({ status: 201, description: 'SQL entry created successfully' })
   async create(@Body() dto: CreateSqlDto) {
     const data = await this.sqlService.create(dto);
     return { success: true, data, message: 'SQL entry created' };
   }
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all SQL entries' })
   @ApiResponse({ status: 200, description: 'SQL entries retrieved' })
@@ -36,6 +42,7 @@ export class SqlController {
     return { success: true, data, message: 'SQL entries retrieved' };
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get a single SQL entry' })
   @ApiResponse({ status: 200, description: 'SQL entry retrieved' })
@@ -45,7 +52,9 @@ export class SqlController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a SQL entry' })
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a SQL entry (admin only)' })
   @ApiResponse({ status: 200, description: 'SQL entry updated' })
   async update(@Param('id') id: string, @Body() dto: UpdateSqlDto) {
     const data = await this.sqlService.update(id, dto);
@@ -53,7 +62,9 @@ export class SqlController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a SQL entry' })
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a SQL entry (admin only)' })
   @ApiResponse({ status: 200, description: 'SQL entry deleted' })
   async remove(@Param('id') id: string) {
     await this.sqlService.remove(id);
